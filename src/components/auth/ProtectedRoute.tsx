@@ -33,7 +33,7 @@ export default function ProtectedRoute({
       return <Navigate to="/admin" replace />;
     }
     
-    // Redirect others to student page if they're trying to access admin routes
+    // Redirect students and other roles to student page if trying to access admin routes
     return <Navigate to="/student" replace />;
   }
   

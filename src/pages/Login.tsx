@@ -31,7 +31,7 @@ export default function Login() {
     try {
       await login(email, password, isAdmin);
       
-      // Redirect based on admin status
+      // Redirect based on admin checkbox
       if (isAdmin) {
         navigate("/admin");
       } else {

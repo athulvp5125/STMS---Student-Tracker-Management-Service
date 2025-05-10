@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { 
   User,
@@ -28,7 +29,7 @@ interface AuthContextType {
   isStudent: boolean;
   loading: boolean;
   register: (email: string, password: string, role: UserRole, name: string) => Promise<void>;
-  login: (email: string, password: string, isAdmin: boolean) => Promise<void>;
+  login: (email: string, password: string, isAdminLogin: boolean) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Login user
-  async function login(email: string, password: string, isAdmin: boolean) {
+  async function login(email: string, password: string, isAdminLogin: boolean) {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -82,16 +83,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = userDoc.data();
         
         // Check if user is trying to access the admin area but doesn't have admin role
-        if (isAdmin && userData.role !== 'admin') {
+        if (isAdminLogin && userData.role !== 'admin') {
           await signOut(auth);
           toast.error("You don't have admin privileges");
           throw new Error("Unauthorized access");
         }
         
-        // Check if regular student is trying to access student portal
-        if (!isAdmin && userData.role === 'admin') {
-          toast.info("Redirecting to admin dashboard");
-        }
+        // Set user information
+        const appUser = user as AppUser;
+        appUser.role = userData.role as UserRole;
+        appUser.displayName = userData.name;
+        
+        setCurrentUser(appUser);
+        setUserRole(userData.role as UserRole);
         
         toast.success("Login successful!");
       } else {
