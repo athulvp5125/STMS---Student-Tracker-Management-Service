@@ -3,7 +3,6 @@ import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/components/ui/sidebar";
 import { 
   LogOut, 
   Home, 
@@ -29,15 +28,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen flex bg-gray-100">
-      <Sidebar defaultCollapsed={false}>
-        <SidebarHeader className="flex flex-col items-center justify-center p-4 border-b">
+      <div className="w-64 bg-white shadow-md flex flex-col">
+        <div className="flex flex-col items-center justify-center p-4 border-b">
           <h2 className="text-xl font-bold text-blue-600">STMS Admin</h2>
           <p className="text-sm text-gray-600 mt-1">
             {currentUser?.displayName || currentUser?.email}
           </p>
-        </SidebarHeader>
+        </div>
         
-        <SidebarContent className="flex flex-col py-4">
+        <div className="flex flex-col py-4">
           <SidebarNavItem icon={Home} label="Dashboard" path="/admin" />
           <SidebarNavItem icon={Users} label="Student Management" path="/admin/students" />
           <SidebarNavItem icon={GraduationCap} label="Academic Records" path="/admin/academics" />
@@ -45,9 +44,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <SidebarNavItem icon={FileText} label="Training Module" path="/admin/training" />
           <SidebarNavItem icon={FileText} label="Exam Management" path="/admin/exams" />
           <SidebarNavItem icon={Settings} label="Settings" path="/admin/settings" />
-        </SidebarContent>
+        </div>
         
-        <SidebarFooter className="p-4 border-t mt-auto">
+        <div className="p-4 border-t mt-auto">
           <Button 
             variant="outline" 
             className="w-full flex items-center justify-center gap-2"
@@ -56,8 +55,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <LogOut size={18} />
             Log Out
           </Button>
-        </SidebarFooter>
-      </Sidebar>
+        </div>
+      </div>
       
       <div className="flex-1 overflow-auto">
         <div className="p-6 max-w-7xl mx-auto">

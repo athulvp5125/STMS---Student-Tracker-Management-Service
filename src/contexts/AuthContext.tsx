@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { 
   User,
@@ -15,7 +14,7 @@ import { toast } from "sonner";
 export type UserRole = 'admin' | 'faculty' | 'placement_officer' | 'student';
 
 // Extend Firebase User type with our custom properties
-export interface AppUser extends User {
+export interface AppUser extends Omit<User, 'displayName'> {
   role?: UserRole;
   displayName?: string;
 }
