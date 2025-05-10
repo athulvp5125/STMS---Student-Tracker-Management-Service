@@ -73,6 +73,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Login user
   async function login(email: string, password: string, isAdminLogin: boolean) {
     try {
+      // Special case for admin credentials
+      if (email === "admin" && password === "1234") {
+        // Create a mock admin user
+        const mockAdminUser = {
+          uid: "admin-special",
+          email: "admin@example.com",
+          displayName: "Administrator",
+          role: "admin" as UserRole,
+          // Add other required User properties
+          emailVerified: true,
+          isAnonymous: false,
+          metadata: {},
+          providerData: [],
+          refreshToken: "",
+          tenantId: null,
+          delete: async () => {},
+          getIdToken: async () => "",
+          getIdTokenResult: async () => ({ claims: {}, token: "", authTime: "", issuedAtTime: "", expirationTime: "", signInProvider: null, signInSecondFactor: null }),
+          reload: async () => {},
+          toJSON: () => ({})
+        } as unknown as AppUser;
+        
+        setCurrentUser(mockAdminUser);
+        setUserRole("admin");
+        toast.success("Admin login successful!");
+        return;
+      }
+      
+      // Regular Firebase authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
