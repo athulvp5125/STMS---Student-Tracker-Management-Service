@@ -62,8 +62,8 @@ export default function Login() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="your.email@example.com"
+                type="text"
+                placeholder="your.email@example.com or 'admin'"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -102,6 +102,10 @@ export default function Login() {
             >
               {isSubmitting ? "Logging in..." : "Login"}
             </Button>
+            
+            <p className="text-center text-sm text-gray-600 mt-2">
+              Use admin/1234 for admin access
+            </p>
             
             <p className="text-sm text-gray-500 text-center">
               Don't have an account?{" "}

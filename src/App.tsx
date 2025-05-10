@@ -18,6 +18,10 @@ import PlacementManagement from "./pages/admin/PlacementManagement";
 
 // Student Pages
 import StudentDashboard from "./pages/student/StudentDashboard";
+import Academics from "./pages/student/Academics";
+import Placements from "./pages/student/Placements";
+import Training from "./pages/student/Training";
+import Exams from "./pages/student/Exams";
 
 // 404 Page
 import NotFound from "./pages/NotFound";
@@ -48,6 +52,10 @@ const App = () => (
             {/* Student Protected Routes */}
             <Route element={<ProtectedRoute allowedRoles={['student', 'faculty', 'placement_officer']} />}>
               <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/student/academics" element={<Academics />} />
+              <Route path="/student/placements" element={<Placements />} />
+              <Route path="/student/training" element={<Training />} />
+              <Route path="/student/exams" element={<Exams />} />
               {/* Add more student routes as needed */}
             </Route>
             
