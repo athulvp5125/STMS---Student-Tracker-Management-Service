@@ -54,13 +54,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Create user profile document in Firestore
+      // Create user profile document in Firestore with plaintext name
       await setDoc(doc(db, "users", user.uid), {
         email,
         role,
-        name,
+        name, // Store the name in plain text
         createdAt: new Date().toISOString()
       });
+      
+      // Also create a student record for student roles
+      if (role === 'student') {
+        await setDoc(doc(db, "students", user.uid), {
+          name: name, // Store student name in plain text
+          email: email,
+          userId: user.uid,
+          admissionYear: new Date().getFullYear().toString(),
+          cgpa: "0.0",
+          placementStatus: "Not Placed",
+          createdAt: new Date().toISOString()
+        });
+      }
       
       toast.success("Registration successful!");
     } catch (error: any) {
@@ -163,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const userData = userDoc.data();
             const appUser = user as AppUser;
             appUser.role = userData.role as UserRole;
-            appUser.displayName = userData.name;
+            appUser.displayName = userData.name; // Use the plaintext name from Firestore
             
             setCurrentUser(appUser);
             setUserRole(userData.role as UserRole);
