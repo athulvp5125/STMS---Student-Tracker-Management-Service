@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { GraduationCap, LogIn } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -50,76 +51,100 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Student Tracking & Management</CardTitle>
-        </CardHeader>
-        
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="text"
-                placeholder="your.email@example.com or 'admin'"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-fade-in">
+        <Card className="w-full border-0 shadow-lg glass-card">
+          <CardHeader className="text-center space-y-2">
+            <div className="mx-auto bg-gradient-primary w-16 h-16 rounded-full flex items-center justify-center">
+              <GraduationCap className="text-white h-8 w-8" />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="isAdmin" 
-                checked={isAdmin}
-                onCheckedChange={(checked) => setIsAdmin(checked === true)}
-              />
-              <Label htmlFor="isAdmin" className="text-sm cursor-pointer">
-                Login as Administrator
-              </Label>
-            </div>
-          </CardContent>
+            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+            <p className="text-gray-500">Sign in to access your account</p>
+          </CardHeader>
           
-          <CardFooter className="flex-col gap-3">
-            <Button 
-              type="submit" 
-              className="w-full bg-system-blue hover:bg-blue-700"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Logging in..." : "Login"}
-            </Button>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email or Username</Label>
+                <Input
+                  id="email"
+                  type="text"
+                  placeholder="your.email@example.com or 'admin'"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-12"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <a href="#" className="text-xs text-primary hover:underline">
+                    Forgot password?
+                  </a>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12"
+                  required
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="isAdmin" 
+                  checked={isAdmin}
+                  onCheckedChange={(checked) => setIsAdmin(checked === true)}
+                />
+                <Label htmlFor="isAdmin" className="text-sm cursor-pointer">
+                  Login as Administrator
+                </Label>
+              </div>
+            </CardContent>
             
-            <p className="text-center text-sm text-gray-600 mt-2">
-              Use admin/1234 for admin access
-            </p>
-            
-            <p className="text-sm text-gray-500 text-center">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                onClick={navigateToRegister}
-                className="text-system-blue hover:underline"
+            <CardFooter className="flex-col gap-4">
+              <Button 
+                type="submit" 
+                className="w-full h-12 text-base bg-gradient-primary hover:opacity-90"
+                disabled={isSubmitting}
               >
-                Register here
-              </button>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+                {isSubmitting ? (
+                  <span className="flex items-center">
+                    <span className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                    Logging in...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <LogIn className="mr-2 h-5 w-5" />
+                    Sign In
+                  </span>
+                )}
+              </Button>
+              
+              <div className="bg-blue-50 rounded-lg p-3 text-center text-sm text-blue-800 w-full">
+                <p className="font-medium">Admin Access</p>
+                <p>Username: <span className="font-bold">admin</span> | Password: <span className="font-bold">1234</span></p>
+              </div>
+              
+              <p className="text-sm text-gray-500 text-center mt-2">
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={navigateToRegister}
+                  className="text-primary font-medium hover:underline"
+                >
+                  Register here
+                </button>
+              </p>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }
