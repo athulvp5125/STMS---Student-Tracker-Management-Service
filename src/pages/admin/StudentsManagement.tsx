@@ -13,9 +13,20 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Plus, Search, User, Edit, Trash } from "lucide-react";
+import { AddStudentForm } from "@/components/admin/AddStudentForm";
 
-// Sample student data for the table
-const sampleStudents = [
+// Define the student type
+interface Student {
+  id: string;
+  name: string;
+  email: string;
+  admissionYear: string;
+  cgpa: string;
+  placementStatus: string;
+}
+
+// Initial sample student data for the table
+const initialStudents = [
   {
     id: "1",
     name: "Alex Johnson",
@@ -44,7 +55,8 @@ const sampleStudents = [
 
 export default function StudentsManagement() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [students] = useState(sampleStudents);
+  const [students, setStudents] = useState<Student[]>(initialStudents);
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   
   // Filter students based on search query
   const filteredStudents = students.filter(student => 
@@ -52,12 +64,20 @@ export default function StudentsManagement() {
     student.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Handle adding a new student
+  const handleAddStudent = (newStudent: Student) => {
+    setStudents(prevStudents => [...prevStudents, newStudent]);
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Student Management</h1>
-          <Button className="bg-system-blue hover:bg-blue-700">
+          <Button 
+            className="bg-system-blue hover:bg-blue-700"
+            onClick={() => setIsAddStudentOpen(true)}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add New Student
           </Button>
@@ -107,7 +127,9 @@ export default function StudentsManagement() {
                           <div className={`inline-block px-2 py-1 rounded-full text-xs ${
                             student.placementStatus === "Placed" 
                               ? "bg-green-100 text-green-800" 
-                              : "bg-yellow-100 text-yellow-800"
+                              : student.placementStatus === "In Process"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-yellow-100 text-yellow-800"
                           }`}>
                             {student.placementStatus}
                           </div>
@@ -137,6 +159,13 @@ export default function StudentsManagement() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Add Student Form Dialog */}
+      <AddStudentForm 
+        open={isAddStudentOpen} 
+        onClose={() => setIsAddStudentOpen(false)}
+        onAddStudent={handleAddStudent}
+      />
     </AdminLayout>
   );
 }

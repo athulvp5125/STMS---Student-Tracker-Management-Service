@@ -15,6 +15,10 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentsManagement from "./pages/admin/StudentsManagement";
 import PlacementManagement from "./pages/admin/PlacementManagement";
+import AcademicRecords from "./pages/admin/AcademicRecords";
+import TrainingModule from "./pages/admin/TrainingModule";
+import ExamManagement from "./pages/admin/ExamManagement";
+import Settings from "./pages/admin/Settings";
 
 // Student Pages
 import StudentDashboard from "./pages/student/StudentDashboard";
@@ -46,7 +50,10 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/students" element={<StudentsManagement />} />
               <Route path="/admin/placements" element={<PlacementManagement />} />
-              {/* Add more admin routes as needed */}
+              <Route path="/admin/academics" element={<AcademicRecords />} />
+              <Route path="/admin/training" element={<TrainingModule />} />
+              <Route path="/admin/exams" element={<ExamManagement />} />
+              <Route path="/admin/settings" element={<Settings />} />
             </Route>
             
             {/* Student Protected Routes */}
@@ -56,7 +63,6 @@ const App = () => (
               <Route path="/student/placements" element={<Placements />} />
               <Route path="/student/training" element={<Training />} />
               <Route path="/student/exams" element={<Exams />} />
-              {/* Add more student routes as needed */}
             </Route>
             
             {/* 404 Route */}
