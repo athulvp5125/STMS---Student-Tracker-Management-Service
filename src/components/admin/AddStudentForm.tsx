@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 import {
   Form,
   FormControl,
@@ -57,7 +57,10 @@ export function AddStudentForm({ open, onClose, onAddStudent }: AddStudentFormPr
     onAddStudent(newStudent);
     
     // Show success message
-    toast.success("Student added successfully!");
+    toast({
+      title: "Success",
+      description: "Student added successfully!",
+    });
     
     // Reset form and close dialog
     form.reset();

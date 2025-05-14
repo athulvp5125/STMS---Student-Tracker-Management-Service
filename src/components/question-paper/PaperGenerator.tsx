@@ -54,6 +54,7 @@ export default function PaperGenerator() {
   const [selectedPattern, setSelectedPattern] = useState<ExamPattern | null>(null);
   const [generatedPaper, setGeneratedPaper] = useState<GeneratedPaper | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [savedPapers, setSavedPapers] = useState<GeneratedPaper[]>([]); 
 
   const form = useForm<z.infer<typeof generatorSchema>>({
     resolver: zodResolver(generatorSchema),
@@ -192,6 +193,23 @@ export default function PaperGenerator() {
       createdAt: new Date(),
       createdBy: "admin",
     };
+  };
+
+  const handleSavePaper = () => {
+    if (generatedPaper) {
+      setSavedPapers((prev) => [...prev, generatedPaper]);
+      toast({
+        title: "Paper Saved",
+        description: `"${generatedPaper.name}" has been saved successfully.`,
+      });
+    }
+  };
+
+  const handleEditPaper = () => {
+    toast({
+      title: "Edit Paper",
+      description: "Paper editing functionality will be available in the next update.",
+    });
   };
 
   return (
@@ -412,10 +430,10 @@ export default function PaperGenerator() {
               </div>
             </CardContent>
             <CardFooter className="justify-end space-x-2">
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleEditPaper}>
                 Edit Paper
               </Button>
-              <Button variant="default">
+              <Button variant="default" onClick={handleSavePaper}>
                 Save Paper
               </Button>
             </CardFooter>

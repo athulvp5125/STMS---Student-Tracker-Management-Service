@@ -15,6 +15,7 @@ import {
 import { Plus, Search, User, Edit, Trash, UserPlus, Mail, Calendar, Award } from "lucide-react";
 import { AddStudentForm } from "@/components/admin/AddStudentForm";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/use-toast";
 
 // Define the student type
 interface Student {
@@ -82,6 +83,7 @@ export default function StudentsManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   
   // Filter students based on search query
   const filteredStudents = students.filter(student => 
@@ -92,6 +94,25 @@ export default function StudentsManagement() {
   // Handle adding a new student
   const handleAddStudent = (newStudent: Student) => {
     setStudents(prevStudents => [...prevStudents, newStudent]);
+  };
+
+  // Handle deleting a student
+  const handleDeleteStudent = (studentId: string) => {
+    setStudents(prevStudents => prevStudents.filter(student => student.id !== studentId));
+    toast({
+      title: "Student Deleted",
+      description: "The student has been removed successfully.",
+    });
+  };
+
+  // Handle editing a student
+  const handleEditStudent = (student: Student) => {
+    setEditingStudent(student);
+    // In a real application, you would open an edit modal here
+    toast({
+      title: "Edit Student",
+      description: "Editing functionality will be implemented in the next update.",
+    });
   };
 
   return (
@@ -208,10 +229,20 @@ export default function StudentsManagement() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end space-x-2">
-                            <Button variant="outline" size="sm" className="h-8 border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8 border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                              onClick={() => handleEditStudent(student)}
+                            >
                               <Edit className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="outline" size="sm" className="h-8 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                              onClick={() => handleDeleteStudent(student.id)}
+                            >
                               <Trash className="h-3.5 w-3.5" />
                             </Button>
                           </div>
