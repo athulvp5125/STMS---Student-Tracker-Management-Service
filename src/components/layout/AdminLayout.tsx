@@ -1,10 +1,8 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "../theme-toggle";
 import { useAuth } from "@/contexts/AuthContext";
-import { Menu, X, Home, Users, BookOpen, Award, GraduationCap, FileText, Settings, Archive, Calculator } from "lucide-react";
+import { Menu, X, Home, Users, BookOpen, Award, GraduationCap, FileText, Settings, Calculator } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -139,7 +137,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Button>
             </div>
             <div className="flex items-center gap-3">
-              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={logout}>
                 Logout
               </Button>
