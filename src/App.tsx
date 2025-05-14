@@ -18,6 +18,7 @@ import PlacementManagement from "./pages/admin/PlacementManagement";
 import AcademicRecords from "./pages/admin/AcademicRecords";
 import TrainingModule from "./pages/admin/TrainingModule";
 import ExamManagement from "./pages/admin/ExamManagement";
+import QuestionPaperGenerator from "./pages/admin/QuestionPaperGenerator";
 import Settings from "./pages/admin/Settings";
 
 // Student Pages
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/admin/academics" element={<AcademicRecords />} />
               <Route path="/admin/training" element={<TrainingModule />} />
               <Route path="/admin/exams" element={<ExamManagement />} />
+              <Route path="/admin/question-paper" element={<QuestionPaperGenerator />} />
               <Route path="/admin/settings" element={<Settings />} />
             </Route>
             

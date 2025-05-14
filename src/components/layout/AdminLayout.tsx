@@ -1,93 +1,153 @@
 
-import React from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  LogOut, 
-  Home, 
-  Users, 
-  GraduationCap, 
-  Briefcase, 
-  FileText, 
-  Settings 
-} from "lucide-react";
+import { ThemeToggle } from "../theme-toggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { Menu, X, Home, Users, BookOpen, Award, GraduationCap, FileText, Settings, Archive, Calculator } from "lucide-react";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { useMediaQuery } from "@/hooks/use-mobile";
 
-interface AdminLayoutProps {
+interface NavLinkProps {
+  href: string;
+  icon: React.ReactNode;
   children: React.ReactNode;
+  active?: boolean;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { logout, currentUser } = useAuth();
-  const navigate = useNavigate();
+const NavLink = ({ href, icon, children, active }: NavLinkProps) => (
+  <Link
+    to={href}
+    className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+      active
+        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground"
+    }`}
+  >
+    {icon}
+    <span>{children}</span>
+  </Link>
+);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { user, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const pathname = location.pathname;
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
-  return (
-    <div className="min-h-screen flex bg-gray-100">
-      <div className="w-64 bg-white shadow-md flex flex-col">
-        <div className="flex flex-col items-center justify-center p-4 border-b">
-          <h2 className="text-xl font-bold text-blue-600">STMS Admin</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {currentUser?.displayName || currentUser?.email}
-          </p>
-        </div>
-        
-        <div className="flex flex-col py-4">
-          <SidebarNavItem icon={Home} label="Dashboard" path="/admin" />
-          <SidebarNavItem icon={Users} label="Student Management" path="/admin/students" />
-          <SidebarNavItem icon={GraduationCap} label="Academic Records" path="/admin/academics" />
-          <SidebarNavItem icon={Briefcase} label="Placement Management" path="/admin/placements" />
-          <SidebarNavItem icon={FileText} label="Training Module" path="/admin/training" />
-          <SidebarNavItem icon={FileText} label="Exam Management" path="/admin/exams" />
-          <SidebarNavItem icon={Settings} label="Settings" path="/admin/settings" />
-        </div>
-        
-        <div className="p-4 border-t mt-auto">
-          <Button 
-            variant="outline" 
-            className="w-full flex items-center justify-center gap-2"
-            onClick={handleLogout}
-          >
-            <LogOut size={18} />
-            Log Out
-          </Button>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-auto">
-        <div className="p-6 max-w-7xl mx-auto">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
+  const closeSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
 
-function SidebarNavItem({ 
-  icon: Icon, 
-  label, 
-  path 
-}: { 
-  icon: React.ElementType; 
-  label: string; 
-  path: string;
-}) {
-  const navigate = useNavigate();
-  const isActive = location.pathname === path;
-  
+  const navLinks = [
+    { href: "/admin", label: "Dashboard", icon: <Home className="h-4 w-4" /> },
+    { href: "/admin/students", label: "Students", icon: <Users className="h-4 w-4" /> },
+    { href: "/admin/academics", label: "Academics", icon: <BookOpen className="h-4 w-4" /> },
+    { href: "/admin/placements", label: "Placements", icon: <Award className="h-4 w-4" /> },
+    { href: "/admin/training", label: "Training", icon: <GraduationCap className="h-4 w-4" /> },
+    { href: "/admin/exams", label: "Exams", icon: <FileText className="h-4 w-4" /> },
+    { href: "/admin/question-paper", label: "Question Papers", icon: <Calculator className="h-4 w-4" /> },
+    { href: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
+  ];
+
   return (
-    <button
-      onClick={() => navigate(path)}
-      className={`flex items-center gap-3 px-4 py-3 text-left w-full hover:bg-gray-200 transition-colors ${
-        isActive ? "bg-gray-200 font-medium" : ""
-      }`}
-    >
-      <Icon size={20} />
-      <span>{label}</span>
-    </button>
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <aside
+        className={`bg-sidebar fixed top-0 bottom-0 lg:left-0 w-64 lg:w-72 pt-16 transition-all duration-300 ease-in-out z-40 ${
+          sidebarOpen ? "left-0" : "-left-72"
+        }`}
+      >
+        <div className="flex flex-col p-4 h-full">
+          <div className="flex items-center justify-between mb-8">
+            <Link to="/admin" className="flex items-center gap-3" onClick={closeSidebar}>
+              <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg h-8 w-8 flex items-center justify-center text-white font-bold">
+                E
+              </div>
+              <div className="font-bold text-xl text-sidebar-foreground">EduAdmin</div>
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="lg:hidden text-sidebar-foreground"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <nav className="space-y-1 flex-1 mt-4">
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.href}
+                href={link.href}
+                icon={link.icon}
+                active={pathname === link.href}
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="pt-4 mt-auto border-t border-sidebar-border">
+            <div className="flex items-center gap-3 p-3">
+              <Avatar>
+                <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
+                  {user?.displayName?.charAt(0) || "A"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  {user?.displayName || "Admin User"}
+                </p>
+                <p className="text-xs text-sidebar-foreground/70 truncate">
+                  {user?.email || "admin@example.com"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={toggleSidebar}
+        ></div>
+      )}
+
+      {/* Main Content */}
+      <main className="flex-1 min-w-0 overflow-auto lg:ml-72">
+        <div className="sticky top-0 z-30 bg-white border-b">
+          <header className="px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="lg:hidden"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Button variant="outline" size="sm" onClick={logout}>
+                Logout
+              </Button>
+            </div>
+          </header>
+        </div>
+        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+      </main>
+    </div>
   );
 }
