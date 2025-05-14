@@ -6,7 +6,7 @@ import { ThemeToggle } from "../theme-toggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X, Home, Users, BookOpen, Award, GraduationCap, FileText, Settings, Archive, Calculator } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import { useMediaQuery } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavLinkProps {
   href: string;
@@ -30,11 +30,11 @@ const NavLink = ({ href, icon, children, active }: NavLinkProps) => (
 );
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
+  const { currentUser, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const pathname = location.pathname;
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useIsMobile();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -100,15 +100,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-3 p-3">
               <Avatar>
                 <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
-                  {user?.displayName?.charAt(0) || "A"}
+                  {currentUser?.displayName?.charAt(0) || "A"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  {user?.displayName || "Admin User"}
+                  {currentUser?.displayName || "Admin User"}
                 </p>
                 <p className="text-xs text-sidebar-foreground/70 truncate">
-                  {user?.email || "admin@example.com"}
+                  {currentUser?.email || "admin@example.com"}
                 </p>
               </div>
             </div>
