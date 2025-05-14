@@ -130,7 +130,7 @@ export default function PaperGenerator() {
     pattern: ExamPattern
   ): GeneratedPaper => {
     // Filter questions by subject
-    const availableQuestions = bank.questions.filter(q => q.subject === subject);
+    const availableQuestions = bank.questions.filter(q => q.subject.toLowerCase() === subject.toLowerCase());
     
     if (availableQuestions.length === 0) {
       throw new Error(`No questions available for subject: ${subject}`);
@@ -140,12 +140,14 @@ export default function PaperGenerator() {
     
     // Process each section in the pattern
     pattern.sections.forEach(section => {
-      const sectionQuestions: Question[] = [];
-      
       // Filter by question types for this section
       const questionsForTypes = availableQuestions.filter(q => 
         section.questionTypes.includes(q.type as QuestionType)
       );
+      
+      if (questionsForTypes.length === 0) {
+        throw new Error(`No questions of type ${section.questionTypes.join(", ")} available for subject: ${subject}`);
+      }
       
       // Group by difficulty
       const easyQuestions = questionsForTypes.filter(q => q.difficulty === "Easy");
@@ -157,33 +159,56 @@ export default function PaperGenerator() {
       const mediumCount = Math.round(section.questionCount * (section.difficultyDistribution.medium / 100));
       const hardCount = section.questionCount - easyCount - mediumCount;
       
-      // Randomly select questions for each difficulty
-      const getRandomQuestions = (questions: Question[], count: number) => {
-        const shuffled = [...questions].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
-      };
-      
       // Check if we have enough questions
       if (
         easyQuestions.length < easyCount || 
         mediumQuestions.length < mediumCount || 
         hardQuestions.length < hardCount
       ) {
-        throw new Error(`Not enough questions available for section: ${section.name}`);
+        console.log(`Available: Easy=${easyQuestions.length}, Medium=${mediumQuestions.length}, Hard=${hardQuestions.length}`);
+        console.log(`Required: Easy=${easyCount}, Medium=${mediumCount}, Hard=${hardCount}`);
+        
+        // Adjust counts if we don't have enough questions
+        const adjustedEasyCount = Math.min(easyCount, easyQuestions.length);
+        const adjustedMediumCount = Math.min(mediumCount, mediumQuestions.length);
+        const adjustedHardCount = Math.min(hardCount, hardQuestions.length);
+        
+        // Get available questions for each difficulty
+        const sectionQuestions = [
+          ...getRandomQuestions(easyQuestions, adjustedEasyCount),
+          ...getRandomQuestions(mediumQuestions, adjustedMediumCount),
+          ...getRandomQuestions(hardQuestions, adjustedHardCount)
+        ];
+        
+        if (sectionQuestions.length < section.questionCount) {
+          toast({
+            title: "Warning",
+            description: `Not enough questions available for section: ${section.name}. Using available questions.`,
+          });
+        }
+        
+        // Add section questions to overall selected questions
+        selectedQuestions.push(...sectionQuestions);
+      } else {
+        // Get questions for each difficulty level
+        const sectionQuestions = [
+          ...getRandomQuestions(easyQuestions, easyCount),
+          ...getRandomQuestions(mediumQuestions, mediumCount),
+          ...getRandomQuestions(hardQuestions, hardCount)
+        ];
+        
+        // Add section questions to overall selected questions
+        selectedQuestions.push(...sectionQuestions);
       }
-      
-      // Get questions for each difficulty level
-      sectionQuestions.push(...getRandomQuestions(easyQuestions, easyCount));
-      sectionQuestions.push(...getRandomQuestions(mediumQuestions, mediumCount));
-      sectionQuestions.push(...getRandomQuestions(hardQuestions, hardCount));
-      
-      // Add section questions to overall selected questions
-      selectedQuestions.push(...sectionQuestions);
     });
     
-    // Create the paper object
+    if (selectedQuestions.length === 0) {
+      throw new Error("Could not generate any questions for the paper.");
+    }
+    
+    // Create the paper object with a unique ID
     return {
-      id: `paper-${Date.now()}`,
+      id: `paper-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       name,
       totalMarks: pattern.totalMarks,
       duration: pattern.duration,
@@ -195,12 +220,27 @@ export default function PaperGenerator() {
     };
   };
 
+  // Randomly select questions
+  const getRandomQuestions = (questions: Question[], count: number) => {
+    const shuffled = [...questions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
   const handleSavePaper = () => {
     if (generatedPaper) {
       setSavedPapers((prev) => [...prev, generatedPaper]);
       toast({
         title: "Paper Saved",
         description: `"${generatedPaper.name}" has been saved successfully.`,
+      });
+      
+      // Reset after saving to allow generating a new paper
+      setGeneratedPaper(null);
+      form.reset({
+        name: "",
+        subject: "",
+        questionBankId: "",
+        patternId: "",
       });
     }
   };
@@ -383,10 +423,13 @@ export default function PaperGenerator() {
               
               <div className="space-y-6">
                 {generatedPaper.pattern.sections.map((section, sectionIdx) => {
-                  // Filter questions for this section based on type and count
-                  const sectionQuestions = generatedPaper.questions.filter(
-                    (q) => section.questionTypes.includes(q.type as QuestionType)
-                  ).slice(0, section.questionCount);
+                  // Get an appropriate slice of questions for this section
+                  const totalQuestionsNeeded = generatedPaper.pattern.sections
+                    .slice(0, sectionIdx)
+                    .reduce((sum, s) => sum + s.questionCount, 0);
+                  
+                  const sectionQuestions = generatedPaper.questions
+                    .slice(totalQuestionsNeeded, totalQuestionsNeeded + section.questionCount);
                   
                   return (
                     <div key={sectionIdx} className="border rounded-md p-4">
@@ -458,3 +501,4 @@ export default function PaperGenerator() {
     </div>
   );
 }
+
