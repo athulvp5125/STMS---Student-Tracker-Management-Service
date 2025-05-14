@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -67,9 +68,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center justify-between mb-8">
             <Link to="/admin" className="flex items-center gap-3" onClick={closeSidebar}>
               <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg h-8 w-8 flex items-center justify-center text-white font-bold">
-                E
+                S
               </div>
-              <div className="font-bold text-xl text-sidebar-foreground">EduAdmin</div>
+              <div className="font-bold text-xl text-sidebar-foreground">STMS</div>
             </Link>
             <Button
               variant="ghost"

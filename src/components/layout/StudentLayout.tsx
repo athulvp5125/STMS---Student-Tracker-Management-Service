@@ -24,7 +24,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       <header className="bg-system-blue text-white shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold">Student Portal</h1>
+            <h1 className="text-xl font-bold">STMS: Student Portal</h1>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -67,7 +67,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       {/* Footer */}
       <footer className="bg-white py-4 shadow-inner">
         <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
-          &copy; {new Date().getFullYear()} Student Tracking and Management System
+          &copy; {new Date().getFullYear()} STMS - Student Tracker Management System
         </div>
       </footer>
     </div>
