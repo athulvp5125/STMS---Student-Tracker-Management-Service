@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Search, Plus, FileText, Calendar, X } from "lucide-react";
@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "firebase/firestore";
 
 // Create a type for academic records
 interface AcademicRecord {
@@ -32,6 +34,7 @@ interface AcademicRecord {
   subject: string;
   grade: string;
   attendance: string;
+  createdAt?: Date;
 }
 
 export default function AcademicRecords() {
@@ -40,6 +43,7 @@ export default function AcademicRecords() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("All Semesters");
+  const [loading, setLoading] = useState(true);
   
   // Form state for new record
   const [newRecord, setNewRecord] = useState({
@@ -50,6 +54,45 @@ export default function AcademicRecords() {
     attendance: ""
   });
 
+  // Fetch records from Firestore
+  const fetchRecords = async () => {
+    setLoading(true);
+    try {
+      const recordsCollection = collection(db, "academicRecords");
+      const recordsQuery = query(recordsCollection, orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(recordsQuery);
+      
+      const records: AcademicRecord[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as Omit<AcademicRecord, "id">;
+        records.push({
+          id: doc.id,
+          studentName: data.studentName,
+          semester: data.semester,
+          subject: data.subject,
+          grade: data.grade,
+          attendance: data.attendance
+        });
+      });
+      
+      setAcademicRecords(records);
+    } catch (error) {
+      console.error("Error fetching academic records:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load academic records",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load academic records on component mount
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -57,7 +100,7 @@ export default function AcademicRecords() {
   };
 
   // Handle add new record
-  const handleAddRecord = () => {
+  const handleAddRecord = async () => {
     // Validate form
     if (!newRecord.studentName || !newRecord.semester || !newRecord.subject || !newRecord.grade || !newRecord.attendance) {
       toast({
@@ -68,30 +111,60 @@ export default function AcademicRecords() {
       return;
     }
 
-    // Create new record with random ID
-    const record: AcademicRecord = {
-      id: Math.random().toString(36).substring(2, 9),
-      ...newRecord
-    };
+    try {
+      // Add document to Firestore
+      const recordsCollection = collection(db, "academicRecords");
+      await addDoc(recordsCollection, {
+        ...newRecord,
+        createdAt: new Date()
+      });
+      
+      // Reset form and close dialog
+      setNewRecord({
+        studentName: "",
+        semester: "",
+        subject: "",
+        grade: "",
+        attendance: ""
+      });
+      
+      setIsDialogOpen(false);
+      
+      toast({
+        title: "Success",
+        description: "Academic record has been added successfully"
+      });
+      
+      // Refresh records
+      fetchRecords();
+    } catch (error) {
+      console.error("Error adding record:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add academic record",
+        variant: "destructive"
+      });
+    }
+  };
 
-    // Add to records
-    setAcademicRecords(prev => [...prev, record]);
-    
-    // Reset form and close dialog
-    setNewRecord({
-      studentName: "",
-      semester: "",
-      subject: "",
-      grade: "",
-      attendance: ""
-    });
-    
-    setIsDialogOpen(false);
-    
-    toast({
-      title: "Success",
-      description: "Academic record has been added successfully"
-    });
+  // Handle delete record
+  const handleDeleteRecord = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "academicRecords", id));
+      toast({
+        title: "Success",
+        description: "Record deleted successfully"
+      });
+      // Refresh records
+      fetchRecords();
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete record",
+        variant: "destructive"
+      });
+    }
   };
 
   // Filter records by search query and semester
@@ -104,6 +177,9 @@ export default function AcademicRecords() {
     
     return matchesSearch && matchesSemester;
   });
+
+  // Get unique semesters for filter dropdown
+  const uniqueSemesters = Array.from(new Set(academicRecords.map(record => record.semester)));
 
   return (
     <AdminLayout>
@@ -125,19 +201,19 @@ export default function AcademicRecords() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard 
             title="Average GPA" 
-            value={academicRecords.length ? "3.5" : "0"} 
+            value={academicRecords.length ? calculateAverageGPA(academicRecords) : "0"} 
             icon={<FileText className="h-6 w-6 text-blue-500" />}
             color="bg-blue-50"
           />
           <StatCard 
             title="Courses" 
-            value={academicRecords.length.toString()} 
+            value={Array.from(new Set(academicRecords.map(r => r.subject))).length.toString()} 
             icon={<GraduationCap className="h-6 w-6 text-purple-500" />}
             color="bg-purple-50"
           />
           <StatCard 
             title="Semesters" 
-            value={Array.from(new Set(academicRecords.map(r => r.semester))).length.toString()} 
+            value={uniqueSemesters.length.toString()} 
             icon={<Calendar className="h-6 w-6 text-green-500" />}
             color="bg-green-50"
           />
@@ -167,10 +243,9 @@ export default function AcademicRecords() {
                 onChange={(e) => setSelectedSemester(e.target.value)}
               >
                 <option>All Semesters</option>
-                <option>1st Semester</option>
-                <option>2nd Semester</option>
-                <option>3rd Semester</option>
-                <option>4th Semester</option>
+                {uniqueSemesters.map((semester) => (
+                  <option key={semester}>{semester}</option>
+                ))}
               </select>
             </div>
             
@@ -183,10 +258,20 @@ export default function AcademicRecords() {
                     <TableHead className="font-medium">Subject</TableHead>
                     <TableHead className="font-medium">Grade</TableHead>
                     <TableHead className="font-medium">Attendance</TableHead>
+                    <TableHead className="font-medium text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRecords.length > 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        <div className="flex justify-center">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-2">Loading records...</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredRecords.length > 0 ? (
                     filteredRecords.map((record) => (
                       <TableRow key={record.id} className="hover:bg-gray-50">
                         <TableCell className="font-medium">{record.studentName}</TableCell>
@@ -198,11 +283,21 @@ export default function AcademicRecords() {
                         <TableCell>
                           <AttendanceBar attendance={parseInt(record.attendance)} />
                         </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteRecord(record.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-100"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                         No academic records found. Add a new record to get started.
                       </TableCell>
                     </TableRow>
@@ -215,17 +310,6 @@ export default function AcademicRecords() {
               <div className="mt-4 flex items-center justify-between text-sm">
                 <div className="text-gray-500">
                   Showing {filteredRecords.length} records
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" disabled>
-                    Previous
-                  </Button>
-                  <Button variant="outline" size="sm" className="bg-primary/5">
-                    1
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Next
-                  </Button>
                 </div>
               </div>
             )}
@@ -322,6 +406,36 @@ export default function AcademicRecords() {
       </Dialog>
     </AdminLayout>
   );
+}
+
+// Helper function to calculate average GPA
+function calculateAverageGPA(records: AcademicRecord[]): string {
+  if (records.length === 0) return "0";
+  
+  const gradePoints: { [key: string]: number } = {
+    "A+": 4.0,
+    "A": 4.0,
+    "A-": 3.7,
+    "B+": 3.3,
+    "B": 3.0,
+    "B-": 2.7,
+    "C+": 2.3,
+    "C": 2.0,
+    "D": 1.0,
+    "F": 0.0
+  };
+  
+  let totalPoints = 0;
+  let validRecords = 0;
+  
+  records.forEach(record => {
+    if (gradePoints[record.grade] !== undefined) {
+      totalPoints += gradePoints[record.grade];
+      validRecords++;
+    }
+  });
+  
+  return validRecords > 0 ? (totalPoints / validRecords).toFixed(2) : "0";
 }
 
 function StatCard({ title, value, icon, color }: { 
