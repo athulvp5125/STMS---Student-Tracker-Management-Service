@@ -1,8 +1,8 @@
 
-import React from "react";
+import React, { useState } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, Search, Plus, FileText, Calendar } from "lucide-react";
+import { GraduationCap, Search, Plus, FileText, Calendar, X } from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -13,60 +13,98 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
-// Sample academic data with more records
-const academicRecords = [
-  {
-    id: "1",
-    studentName: "Alex Johnson",
-    semester: "3rd",
-    subject: "Data Structures",
-    grade: "A",
-    attendance: "92%"
-  },
-  {
-    id: "2",
-    studentName: "Emily Wilson",
-    semester: "3rd",
-    subject: "Database Management",
-    grade: "B+",
-    attendance: "88%"
-  },
-  {
-    id: "3",
-    studentName: "Michael Brown",
-    semester: "3rd",
-    subject: "Computer Networks",
-    grade: "A-",
-    attendance: "95%"
-  },
-  {
-    id: "4",
-    studentName: "Sarah Davis",
-    semester: "4th",
-    subject: "Operating Systems",
-    grade: "A",
-    attendance: "94%"
-  },
-  {
-    id: "5",
-    studentName: "David Miller",
-    semester: "4th",
-    subject: "Artificial Intelligence",
-    grade: "B",
-    attendance: "82%"
-  },
-  {
-    id: "6",
-    studentName: "Jessica Taylor",
-    semester: "4th",
-    subject: "Web Development",
-    grade: "A+",
-    attendance: "98%"
-  },
-];
+// Create a type for academic records
+interface AcademicRecord {
+  id: string;
+  studentName: string;
+  semester: string;
+  subject: string;
+  grade: string;
+  attendance: string;
+}
 
 export default function AcademicRecords() {
+  const { toast } = useToast();
+  const [academicRecords, setAcademicRecords] = useState<AcademicRecord[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("All Semesters");
+  
+  // Form state for new record
+  const [newRecord, setNewRecord] = useState({
+    studentName: "",
+    semester: "",
+    subject: "",
+    grade: "",
+    attendance: ""
+  });
+
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setNewRecord(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle add new record
+  const handleAddRecord = () => {
+    // Validate form
+    if (!newRecord.studentName || !newRecord.semester || !newRecord.subject || !newRecord.grade || !newRecord.attendance) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Create new record with random ID
+    const record: AcademicRecord = {
+      id: Math.random().toString(36).substring(2, 9),
+      ...newRecord
+    };
+
+    // Add to records
+    setAcademicRecords(prev => [...prev, record]);
+    
+    // Reset form and close dialog
+    setNewRecord({
+      studentName: "",
+      semester: "",
+      subject: "",
+      grade: "",
+      attendance: ""
+    });
+    
+    setIsDialogOpen(false);
+    
+    toast({
+      title: "Success",
+      description: "Academic record has been added successfully"
+    });
+  };
+
+  // Filter records by search query and semester
+  const filteredRecords = academicRecords.filter(record => {
+    const matchesSearch = 
+      record.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.subject.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesSemester = selectedSemester === "All Semesters" || record.semester === selectedSemester;
+    
+    return matchesSearch && matchesSemester;
+  });
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -75,7 +113,10 @@ export default function AcademicRecords() {
             <h1 className="text-3xl font-bold">Academic Records</h1>
             <p className="text-gray-600 mt-1">Manage and track student academic performance</p>
           </div>
-          <Button className="bg-gradient-primary hover:opacity-90">
+          <Button 
+            className="bg-gradient-primary hover:opacity-90"
+            onClick={() => setIsDialogOpen(true)}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add New Record
           </Button>
@@ -84,19 +125,19 @@ export default function AcademicRecords() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard 
             title="Average GPA" 
-            value="3.7" 
+            value={academicRecords.length ? "3.5" : "0"} 
             icon={<FileText className="h-6 w-6 text-blue-500" />}
             color="bg-blue-50"
           />
           <StatCard 
             title="Courses" 
-            value="24" 
+            value={academicRecords.length.toString()} 
             icon={<GraduationCap className="h-6 w-6 text-purple-500" />}
             color="bg-purple-50"
           />
           <StatCard 
             title="Semesters" 
-            value="8" 
+            value={Array.from(new Set(academicRecords.map(r => r.semester))).length.toString()} 
             icon={<Calendar className="h-6 w-6 text-green-500" />}
             color="bg-green-50"
           />
@@ -110,15 +151,21 @@ export default function AcademicRecords() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="mb-6 flex gap-4">
+            <div className="mb-6 flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by student name or subject..."
                   className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <select className="px-4 py-2 rounded-md border border-gray-200 text-sm">
+              <select 
+                className="px-4 py-2 rounded-md border border-gray-200 text-sm"
+                value={selectedSemester}
+                onChange={(e) => setSelectedSemester(e.target.value)}
+              >
                 <option>All Semesters</option>
                 <option>1st Semester</option>
                 <option>2nd Semester</option>
@@ -139,48 +186,140 @@ export default function AcademicRecords() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {academicRecords.map((record) => (
-                    <TableRow key={record.id} className="hover:bg-gray-50">
-                      <TableCell className="font-medium">{record.studentName}</TableCell>
-                      <TableCell>{record.semester}</TableCell>
-                      <TableCell>{record.subject}</TableCell>
-                      <TableCell>
-                        <GradeTag grade={record.grade} />
-                      </TableCell>
-                      <TableCell>
-                        <AttendanceBar attendance={parseInt(record.attendance)} />
+                  {filteredRecords.length > 0 ? (
+                    filteredRecords.map((record) => (
+                      <TableRow key={record.id} className="hover:bg-gray-50">
+                        <TableCell className="font-medium">{record.studentName}</TableCell>
+                        <TableCell>{record.semester}</TableCell>
+                        <TableCell>{record.subject}</TableCell>
+                        <TableCell>
+                          <GradeTag grade={record.grade} />
+                        </TableCell>
+                        <TableCell>
+                          <AttendanceBar attendance={parseInt(record.attendance)} />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                        No academic records found. Add a new record to get started.
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </div>
             
-            <div className="mt-4 flex items-center justify-between text-sm">
-              <div className="text-gray-500">
-                Showing 6 out of 42 records
+            {filteredRecords.length > 0 && (
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <div className="text-gray-500">
+                  Showing {filteredRecords.length} records
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" disabled>
+                    Previous
+                  </Button>
+                  <Button variant="outline" size="sm" className="bg-primary/5">
+                    1
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Next
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled>
-                  Previous
-                </Button>
-                <Button variant="outline" size="sm" className="bg-primary/5">
-                  1
-                </Button>
-                <Button variant="outline" size="sm">
-                  2
-                </Button>
-                <Button variant="outline" size="sm">
-                  3
-                </Button>
-                <Button variant="outline" size="sm">
-                  Next
-                </Button>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog for adding new academic record */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Academic Record</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-3">
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="studentName">Student Name</Label>
+              <Input 
+                id="studentName" 
+                name="studentName"
+                value={newRecord.studentName}
+                onChange={handleInputChange}
+                placeholder="Enter student name" 
+              />
+            </div>
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="semester">Semester</Label>
+              <select 
+                id="semester"
+                name="semester"
+                value={newRecord.semester}
+                onChange={handleInputChange}
+                className="flex h-10 w-full rounded-md border border-input px-3 py-2"
+              >
+                <option value="">Select Semester</option>
+                <option value="1st Semester">1st Semester</option>
+                <option value="2nd Semester">2nd Semester</option>
+                <option value="3rd Semester">3rd Semester</option>
+                <option value="4th Semester">4th Semester</option>
+              </select>
+            </div>
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="subject">Subject</Label>
+              <Input 
+                id="subject"
+                name="subject" 
+                value={newRecord.subject}
+                onChange={handleInputChange}
+                placeholder="Enter subject name" 
+              />
+            </div>
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="grade">Grade</Label>
+              <select 
+                id="grade"
+                name="grade"
+                value={newRecord.grade}
+                onChange={handleInputChange}
+                className="flex h-10 w-full rounded-md border border-input px-3 py-2"
+              >
+                <option value="">Select Grade</option>
+                <option value="A+">A+</option>
+                <option value="A">A</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B">B</option>
+                <option value="B-">B-</option>
+                <option value="C+">C+</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="F">F</option>
+              </select>
+            </div>
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="attendance">Attendance (%)</Label>
+              <Input 
+                id="attendance"
+                name="attendance" 
+                type="number"
+                min="0"
+                max="100"
+                value={newRecord.attendance}
+                onChange={handleInputChange}
+                placeholder="Enter attendance percentage" 
+              />
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-end">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="button" onClick={handleAddRecord}>Add Record</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }

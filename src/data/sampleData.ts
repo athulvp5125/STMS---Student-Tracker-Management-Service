@@ -1,5 +1,5 @@
 
-import { QuestionBank, ExamPattern, QuestionDifficulty, QuestionType } from "@/types/question";
+import { QuestionBank, ExamPattern } from "@/types/question";
 
 // Sample data for question banks
 export const sampleQuestionBanks: QuestionBank[] = [
@@ -32,43 +32,7 @@ export const sampleQuestionBanks: QuestionBank[] = [
         marks: 3,
         createdAt: new Date(),
         createdBy: "admin",
-      },
-      {
-        id: "q3",
-        text: "Implement a function to reverse a linked list.",
-        subject: "Computer Science",
-        topic: "Data Structures",
-        difficulty: "Hard",
-        type: "Long Answer",
-        marks: 5,
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q4",
-        text: "Is an array a primitive data type?",
-        subject: "Computer Science",
-        topic: "Data Structures",
-        difficulty: "Easy",
-        type: "True/False",
-        marks: 1,
-        correctAnswer: "False",
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q5",
-        text: "What is the space complexity of a binary search algorithm?",
-        subject: "Computer Science",
-        topic: "Algorithms",
-        difficulty: "Medium",
-        type: "Multiple Choice",
-        marks: 2,
-        options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
-        correctAnswer: "O(1)",
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
+      }
     ],
     createdAt: new Date(),
     createdBy: "admin",
@@ -102,113 +66,11 @@ export const sampleQuestionBanks: QuestionBank[] = [
         correctAnswer: "3NF",
         createdAt: new Date(),
         createdBy: "admin",
-      },
-      {
-        id: "q8",
-        text: "Explain the concept of ACID properties in database transactions.",
-        subject: "Information Technology",
-        topic: "Database",
-        difficulty: "Medium",
-        type: "Short Answer",
-        marks: 3,
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q9",
-        text: "Write a SQL query to find the second highest salary from an employee table.",
-        subject: "Information Technology",
-        topic: "SQL",
-        difficulty: "Hard",
-        type: "Long Answer",
-        marks: 4,
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q10",
-        text: "Is SQL a procedural language?",
-        subject: "Information Technology",
-        topic: "SQL",
-        difficulty: "Easy",
-        type: "True/False",
-        marks: 1,
-        correctAnswer: "False",
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
+      }
     ],
     createdAt: new Date(),
     createdBy: "admin",
-  },
-  {
-    id: "qb3",
-    name: "Operating Systems",
-    subject: "Computer Science",
-    description: "Questions on process management, memory management, and file systems",
-    questions: [
-      {
-        id: "q11",
-        text: "What is the difference between preemptive and non-preemptive scheduling?",
-        subject: "Computer Science",
-        topic: "Operating Systems",
-        difficulty: "Medium",
-        type: "Short Answer",
-        marks: 3,
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q12",
-        text: "Which of the following is not a process state?",
-        subject: "Computer Science",
-        topic: "Operating Systems",
-        difficulty: "Easy",
-        type: "Multiple Choice",
-        marks: 1,
-        options: ["Ready", "Running", "Waiting", "Compiling"],
-        correctAnswer: "Compiling",
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q13",
-        text: "Explain the concept of virtual memory and its advantages.",
-        subject: "Computer Science",
-        topic: "Memory Management",
-        difficulty: "Hard",
-        type: "Long Answer",
-        marks: 5,
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q14",
-        text: "What is thrashing in an operating system?",
-        subject: "Computer Science",
-        topic: "Memory Management",
-        difficulty: "Medium",
-        type: "Short Answer",
-        marks: 2,
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-      {
-        id: "q15",
-        text: "Can a deadlock occur with only one process?",
-        subject: "Computer Science",
-        topic: "Process Synchronization",
-        difficulty: "Easy",
-        type: "True/False",
-        marks: 1,
-        correctAnswer: "False",
-        createdAt: new Date(),
-        createdBy: "admin",
-      },
-    ],
-    createdAt: new Date(),
-    createdBy: "admin",
-  },
+  }
 ];
 
 // Sample data for exam patterns
@@ -216,13 +78,13 @@ export const sampleExamPatterns: ExamPattern[] = [
   {
     id: "pattern-1",
     name: "Standard Mid-Term",
-    totalMarks: 100,
-    duration: 180, // 3 hours in minutes
+    totalMarks: 50,
+    duration: 120, // 2 hours in minutes
     sections: [
       {
         name: "Multiple Choice Questions",
         questionTypes: ["Multiple Choice"],
-        questionCount: 30,
+        questionCount: 15,
         difficultyDistribution: {
           easy: 40,
           medium: 40,
@@ -233,13 +95,13 @@ export const sampleExamPatterns: ExamPattern[] = [
       {
         name: "Short Answer Questions",
         questionTypes: ["Short Answer"],
-        questionCount: 10,
+        questionCount: 5,
         difficultyDistribution: {
           easy: 30,
           medium: 50,
           hard: 20,
         },
-        marksPerQuestion: 4,
+        marksPerQuestion: 3,
       },
       {
         name: "Long Answer Questions",
@@ -250,7 +112,7 @@ export const sampleExamPatterns: ExamPattern[] = [
           medium: 50,
           hard: 50,
         },
-        marksPerQuestion: 15,
+        marksPerQuestion: 10,
       },
     ],
   },
@@ -283,46 +145,5 @@ export const sampleExamPatterns: ExamPattern[] = [
         marksPerQuestion: 1,
       },
     ],
-  },
-  {
-    id: "pattern-3",
-    name: "Comprehensive Final",
-    totalMarks: 150,
-    duration: 240, // 4 hours in minutes
-    sections: [
-      {
-        name: "Multiple Choice Questions",
-        questionTypes: ["Multiple Choice"],
-        questionCount: 50,
-        difficultyDistribution: {
-          easy: 30,
-          medium: 50,
-          hard: 20,
-        },
-        marksPerQuestion: 1,
-      },
-      {
-        name: "Short Answer Questions",
-        questionTypes: ["Short Answer"],
-        questionCount: 15,
-        difficultyDistribution: {
-          easy: 20,
-          medium: 60,
-          hard: 20,
-        },
-        marksPerQuestion: 4,
-      },
-      {
-        name: "Long Answer Questions",
-        questionTypes: ["Long Answer"],
-        questionCount: 3,
-        difficultyDistribution: {
-          easy: 0,
-          medium: 70,
-          hard: 30,
-        },
-        marksPerQuestion: 10,
-      },
-    ],
-  },
+  }
 ];

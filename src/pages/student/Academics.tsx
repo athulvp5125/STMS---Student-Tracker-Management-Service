@@ -1,25 +1,24 @@
 
-import React from "react";
+import React, { useState } from "react";
 import StudentLayout from "@/components/layout/StudentLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, BookOpen, Award, Calendar } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Academics() {
-  // Sample academic data
-  const currentSemester = {
+  const { toast } = useToast();
+  const [currentSemester, setCurrentSemester] = useState({
     name: "Spring 2025",
     startDate: "January 15, 2025",
     endDate: "May 20, 2025",
     status: "In Progress"
-  };
+  });
 
-  const courses = [
+  const [courses, setCourses] = useState([
     { code: "CSE101", name: "Introduction to Computer Science", grade: "A", credits: 4, attendance: "92%" },
-    { code: "MAT201", name: "Advanced Mathematics", grade: "B+", credits: 3, attendance: "88%" },
-    { code: "PHY105", name: "Physics I", grade: "A-", credits: 4, attendance: "95%" },
-    { code: "ENG203", name: "Technical Writing", grade: "B", credits: 2, attendance: "90%" }
-  ];
+    { code: "MAT201", name: "Advanced Mathematics", grade: "B+", credits: 3, attendance: "88%" }
+  ]);
 
   return (
     <StudentLayout>
@@ -37,7 +36,7 @@ export default function Academics() {
                   <p className="text-sm font-medium text-gray-500">CGPA</p>
                   <p className="text-3xl font-bold mt-1">3.75</p>
                 </div>
-                <GraduationCap className="h-8 w-8 text-system-blue" />
+                <GraduationCap className="h-8 w-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
@@ -47,9 +46,9 @@ export default function Academics() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Credits Completed</p>
-                  <p className="text-3xl font-bold mt-1">48</p>
+                  <p className="text-3xl font-bold mt-1">28</p>
                 </div>
-                <BookOpen className="h-8 w-8 text-system-green" />
+                <BookOpen className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
@@ -59,9 +58,9 @@ export default function Academics() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Attendance</p>
-                  <p className="text-3xl font-bold mt-1">92%</p>
+                  <p className="text-3xl font-bold mt-1">90%</p>
                 </div>
-                <Calendar className="h-8 w-8 text-system-orange" />
+                <Calendar className="h-8 w-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
@@ -71,9 +70,9 @@ export default function Academics() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Achievement Points</p>
-                  <p className="text-3xl font-bold mt-1">120</p>
+                  <p className="text-3xl font-bold mt-1">75</p>
                 </div>
-                <Award className="h-8 w-8 text-system-indigo" />
+                <Award className="h-8 w-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
@@ -98,15 +97,23 @@ export default function Academics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {courses.map((course) => (
-                  <TableRow key={course.code}>
-                    <TableCell className="font-medium">{course.code}</TableCell>
-                    <TableCell>{course.name}</TableCell>
-                    <TableCell>{course.grade}</TableCell>
-                    <TableCell>{course.credits}</TableCell>
-                    <TableCell>{course.attendance}</TableCell>
+                {courses.length > 0 ? (
+                  courses.map((course) => (
+                    <TableRow key={course.code}>
+                      <TableCell className="font-medium">{course.code}</TableCell>
+                      <TableCell>{course.name}</TableCell>
+                      <TableCell>{course.grade}</TableCell>
+                      <TableCell>{course.credits}</TableCell>
+                      <TableCell>{course.attendance}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-6 text-gray-500">
+                      No courses registered for this semester
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>
