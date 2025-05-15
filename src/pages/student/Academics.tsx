@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import StudentLayout from "@/components/layout/StudentLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +19,7 @@ interface Course {
 
 export default function Academics() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { currentUser } = useAuth(); // Changed from 'user' to 'currentUser'
   const [loading, setLoading] = useState(true);
   const [currentSemester, setCurrentSemester] = useState({
     name: "Spring 2025",
@@ -40,15 +39,17 @@ export default function Academics() {
   // Fetch student's academic records
   useEffect(() => {
     const fetchAcademicRecords = async () => {
-      if (!user) return;
+      if (!currentUser) return; // Changed from 'user' to 'currentUser'
       
       try {
         setLoading(true);
         const recordsCollection = collection(db, "academicRecords");
-        // In a real app, you would filter by the student's ID
-        // Here we're just getting all records for demo purposes
-        // const q = query(recordsCollection, where("studentId", "==", user.uid), orderBy("createdAt", "desc"));
-        const q = query(recordsCollection, orderBy("createdAt", "desc"));
+        // Filter by the current student's ID
+        const q = query(
+          recordsCollection, 
+          where("studentId", "==", currentUser.uid), // Changed from 'user' to 'currentUser'
+          orderBy("createdAt", "desc")
+        );
         const querySnapshot = await getDocs(q);
         
         // Transform to course format
@@ -57,10 +58,10 @@ export default function Academics() {
           const data = doc.data();
           fetchedCourses.push({
             id: doc.id,
-            code: `${data.subject.substring(0, 3).toUpperCase()}${Math.floor(Math.random() * 900) + 100}`,
+            code: data.courseCode || `${data.subject.substring(0, 3).toUpperCase()}${Math.floor(Math.random() * 900) + 100}`,
             name: data.subject,
             grade: data.grade,
-            credits: Math.floor(Math.random() * 3) + 2, // Random credits between 2-4
+            credits: data.credits || Math.floor(Math.random() * 3) + 2,
             attendance: data.attendance + "%"
           });
         });
@@ -112,7 +113,7 @@ export default function Academics() {
     };
     
     fetchAcademicRecords();
-  }, [user, toast]);
+  }, [currentUser, toast]); // Changed from 'user' to 'currentUser'
 
   return (
     <StudentLayout>
